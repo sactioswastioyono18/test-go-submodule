@@ -1,0 +1,31 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+
+  build:
+    name: Publish binaries
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # This step reads a file from repo and use it for body of the release
+      # This works on any self-hosted runner OS
+      - name: Zip only specific folder
+        id: read_release
+        shell: bash
+        run: |
+          zip -r submodule-a.zip submodule-a/* 
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: submodule-a.zip
+          asset_name: submodule-a
+          tag: ${{ github.ref }}
